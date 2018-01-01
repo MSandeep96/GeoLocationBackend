@@ -2,6 +2,8 @@ var User = require('../../models/User');
 var mongoose = require('../../config/mongo');
 var expect = require('chai').expect;
 var should = require('chai').should();
+var assert = require('chai').assert;
+var bcrypt = require('bcrypt');
 
 before(function connectToDB(done) {
   mongoose.connection.once('open', done);
@@ -73,7 +75,6 @@ describe('#loginUser()', function () {
   it('should login the user', function (done) {
     User.login({ email: 'fa@fa.com', password: 'bailando' })
       .then((doc) => {
-        console.log("here");
         done();
       })
       .catch((err) => {
@@ -82,7 +83,7 @@ describe('#loginUser()', function () {
   });
 
   it('should fail as invalid password', function (done) {
-    User.login({ email: 'fa@fa.com', password: 'baila' })
+    User.login({ email: 'fa@fa.com', password: 'bailando' })
       .then((doc) => {
         throw new Error();
       })
@@ -92,7 +93,7 @@ describe('#loginUser()', function () {
   });
 
   it('should fail as no such user', function (done) {
-    User.login({ email: 'everydfj', password: 'baila' })
+    User.login({ email: 'fa@fa.com', password: 'bailando' })
       .then((doc) => {
         throw new Error();
       })
@@ -106,5 +107,66 @@ describe('#loginUser()', function () {
       done();
     });
   });
+});
+
+describe('Generates jwt', function () {
+
+  before(function create(done) {
+    User.createUser({ email: 'fa@fa.com', password: 'bailando' })
+      .then((doc) => {
+        doc.genToken().then((token) => {
+          done();
+        });
+      })
+      .catch((err) => {
+        throw new Error(err);
+      });
+  });
+
+  it('generates jwt', function (done) {
+    User.findOne({ email: 'fa@fa.com' })
+      .then((doc) => {
+        assert.equal(doc.tokens.length, 1);
+        done();
+      });
+  });
+
+  after(function deleteUser(done) {
+    User.findOneAndRemove({ email: 'fa@fa.com' }).then((doc) => { done() });
+  });
+
+});
+
+describe('Hashing password',function(){
+  
+  before(function create(done) {
+    User.createUser({ email: 'fa@fa.com', password: 'bailando' })
+      .then((doc) => {
+        doc.genToken().then((token) => {
+          done();
+        });
+      })
+      .catch((err) => {
+        throw new Error(err);
+      });
+  });
+
+  it('hashed password', function (done) {
+    User.findOne({ email: 'fa@fa.com' })
+      .then((doc) => {
+        bcrypt.compare('bailando', doc.password).then((res) => {
+          if (res) {
+            done();
+          } else {
+            throw new Error('Improperly hashed');
+          }
+        });
+      });
+  });
+
+  after(function deleteUser(done) {
+    User.findOneAndRemove({ email: 'fa@fa.com' }).then((doc) => { done() });
+  });
+  
 });
 
