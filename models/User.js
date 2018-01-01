@@ -1,4 +1,4 @@
-var mongoose = require('mongoose');
+var mongoose = require('../config/mongo');
 var bcrypt = require('bcrypt');
 var jwt = require('jsonwebtoken');
 var pick = require('lodash.pick');
@@ -29,7 +29,7 @@ class UserClass {
           return new User(user).save();
         } else {
           return Promise.reject('User exists');
-        }
+        } 
       });
   }
 

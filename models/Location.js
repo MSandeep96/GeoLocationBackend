@@ -1,4 +1,4 @@
-import mongoose from 'mongoose'
+var mongoose = require('../config/mongo');
 
 var locationSchema = new mongoose.Schema({
   userId: String,
