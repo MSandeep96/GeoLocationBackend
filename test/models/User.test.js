@@ -3,11 +3,11 @@ var mongoose = require('../../config/mongo');
 var expect = require('chai').expect;
 var should = require('chai').should();
 
-describe('User Schema', function () {
+before(function connectToDB(done) {
+  mongoose.connection.once('open', done);
+});
 
-  before(function connectToDB(done) {
-    mongoose.connection.once('open', done);
-  });
+describe('User Schema', function () {
 
   it('should fail as invalid password', function (done) {
     var user = new User({ email: 'fsdkjf@gmail.com', password: 'fsfa' });
@@ -22,10 +22,6 @@ describe('User Schema', function () {
 });
 
 describe('#createUser()', function () {
-
-  before(function connectToDB(done) {
-    mongoose.connection.once('open', done);
-  });
 
   beforeEach(function createUser(done) {
     User.createUser({ email: 'fa@fa.com', password: 'bailando' })
@@ -64,11 +60,7 @@ describe('#createUser()', function () {
 
 describe('#loginUser()', function () {
 
-  before(function connectToDB(done) {
-    mongoose.connection.once('open', done);
-  });
-
-  before(function create() {
+  before(function create(done) {
     User.createUser({ email: 'fa@fa.com', password: 'bailando' })
       .then((doc) => {
         done();
@@ -78,9 +70,10 @@ describe('#loginUser()', function () {
       });
   });
 
-  it('should login the user', function () {
+  it('should login the user', function (done) {
     User.login({ email: 'fa@fa.com', password: 'bailando' })
       .then((doc) => {
+        console.log("here");
         done();
       })
       .catch((err) => {
@@ -88,7 +81,7 @@ describe('#loginUser()', function () {
       });
   });
 
-  it('should fail as invalid password', function () {
+  it('should fail as invalid password', function (done) {
     User.login({ email: 'fa@fa.com', password: 'baila' })
       .then((doc) => {
         throw new Error();
@@ -98,7 +91,7 @@ describe('#loginUser()', function () {
       });
   });
 
-  it('should fail as no such user', function () {
+  it('should fail as no such user', function (done) {
     User.login({ email: 'everydfj', password: 'baila' })
       .then((doc) => {
         throw new Error();
