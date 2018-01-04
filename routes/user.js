@@ -10,11 +10,7 @@ router.post('/signup', function (req, res, next) {
       req.body = doc;
       next();
     })
-    .catch((err) => {
-      res.status(401).send({
-        'error':err
-      });
-    });
+    .catch(next);
 });
 
 router.post('/login', function (req, res, next) {
@@ -24,11 +20,18 @@ router.post('/login', function (req, res, next) {
       req.body = doc;
       next();
     })
-    .catch((err) => {
-      res.status(401).send({
-        'error':err
-      });
-    });
+    .catch(next);
+});
+
+//send 200 even if invalid to avoid bruteforce
+router.post('/logout', function (req, res, next) {
+  var userJwt = req.headers['x-auth'];
+  var logoutResponse = (err)=>{
+    res.sendStatus(200);
+  };
+  User.logout(userJwt)
+    .then(logoutResponse)
+    .catch(logoutResponse);
 });
 
 router.post('/facebook', function (req, res, next) {

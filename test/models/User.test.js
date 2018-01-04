@@ -25,13 +25,13 @@ describe('User Schema', function () {
 
 describe('#createUser()', function () {
 
-  beforeEach(function createUser(done) {
+  before(function createUser(done) {
     User.createUser({ email: 'fa@fa.com', password: 'bailando' })
       .then((doc) => {
         done();
       })
       .catch((err) => {
-        throw new Error(err);
+        throw err;
       });
   });
 
@@ -52,7 +52,7 @@ describe('#createUser()', function () {
       });
   });
 
-  afterEach(function deleteUser(done) {
+  after(function deleteUser(done) {
     User.findOneAndRemove({ email: 'fa@fa.com' }).then((doc) => {
       done();
     });
@@ -68,7 +68,7 @@ describe('#loginUser()', function () {
         done();
       })
       .catch((err) => {
-        throw new Error(err);
+        throw err;
       });
   });
 
@@ -78,7 +78,7 @@ describe('#loginUser()', function () {
         done();
       })
       .catch((err) => {
-        throw new Error(err);
+        throw err;
       });
   });
 
@@ -119,7 +119,7 @@ describe('Generates jwt', function () {
         });
       })
       .catch((err) => {
-        throw new Error(err);
+        throw err;
       });
   });
 
@@ -137,8 +137,8 @@ describe('Generates jwt', function () {
 
 });
 
-describe('Hashing password',function(){
-  
+describe('Hashing password', function () {
+
   before(function create(done) {
     User.createUser({ email: 'fa@fa.com', password: 'bailando' })
       .then((doc) => {
@@ -147,7 +147,7 @@ describe('Hashing password',function(){
         });
       })
       .catch((err) => {
-        throw new Error(err);
+        throw err;
       });
   });
 
@@ -167,6 +167,37 @@ describe('Hashing password',function(){
   after(function deleteUser(done) {
     User.findOneAndRemove({ email: 'fa@fa.com' }).then((doc) => { done() });
   });
-  
+
 });
 
+describe('Logout', function () {
+  var userToken;
+
+  before(function create(done) {
+    User.createUser({ email: 'fa@fa.com', password: 'bailando' })
+      .then((doc) => {
+        doc.genToken().then((token) => {
+          userToken = token;
+          User.logout(token);
+          setTimeout(done,500);
+        });
+      })
+      .catch((err) => {
+        throw err;
+      });
+  });
+
+  it('should logout and delete token', function (done) {
+    User.findOne({ email: 'fa@fa.com' })
+      .then((doc) => {
+        assert.equal(doc.tokens.length, 0);
+        done();
+      });
+  });
+
+
+  after(function deleteUser(done) {
+    User.findOneAndRemove({ email: 'fa@fa.com' }).then((doc) => { done() });
+  });
+
+});
