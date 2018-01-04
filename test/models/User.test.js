@@ -5,8 +5,10 @@ var should = require('chai').should();
 var assert = require('chai').assert;
 var bcrypt = require('bcrypt');
 
-before(function connectToDB(done) {
-  mongoose.connection.once('open', done);
+before(function connectToDBU(done) {
+  if (mongoose.connection.readyState === 1) done();
+  else
+    mongoose.connection.on('connected', done);
 });
 
 describe('User Schema', function () {
@@ -171,7 +173,6 @@ describe('Hashing password', function () {
 });
 
 describe('Logout', function () {
-  var userToken;
 
   before(function create(done) {
     User.createUser({ email: 'fa@fa.com', password: 'bailando' })

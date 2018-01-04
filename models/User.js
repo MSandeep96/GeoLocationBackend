@@ -29,14 +29,14 @@ class UserClass {
         if (!doc) {
           return new User(user).save();
         } else {
-          return Promise.reject(CError(401,'User exists'));
+          return Promise.reject(genError(401, 'User exists'));
         }
       });
   }
 
   genToken() {
     var user = this;
-    var token = jwt.sign({ _id: user._id.toHexString() }, 'secret',{expiresIn: 30*60}).toString();
+    var token = jwt.sign({ _id: user._id.toHexString() }, 'secret', { expiresIn: 30 * 60 }).toString();
     user.tokens.push({ token });
     return user.save().then(() => {
       return token;
@@ -47,7 +47,7 @@ class UserClass {
     return this.findOne({ email: user.email })
       .then((doc) => {
         if (!doc) {
-          return Promise.reject(genError(401,'No such user exists'));
+          return Promise.reject(genError(401, 'No such user exists'));
         } else {
           return doc;
         }
@@ -58,24 +58,37 @@ class UserClass {
             if (res) {
               resolve(doc);
             } else {
-              reject(genError(401,'Invalid password'));
+              reject(genError(401, 'Invalid password'));
             }
           });
         });
       });
   }
 
-  static logout(userJwt){
-    return new Promise((resolve,reject)=>{
-      jwt.verify(userJwt,'secret',function(err,decoded){
-        if(err){
-         reject(genError(401,'Invalid token')); 
-        }else{
+  static logout(userJwt) {
+    return new Promise((resolve, reject) => {
+      jwt.verify(userJwt, 'secret', function (err, decoded) {
+        if (err) {
+          reject(genError(401, 'Invalid token'));
+        } else {
           resolve();
-          User.findById(decoded._id).then((doc)=>{
+          User.findById(decoded._id).then((doc) => {
+            if(!doc) return;
             doc.tokens = [];
             doc.save();
           });
+        }
+      });
+    });
+  }
+
+  static authenticate(userJwt) {
+    return new Promise((resolve, reject) => {
+      jwt.verify(userJwt, 'secret', function (err, decoded) {
+        if (err) {
+          reject(genError(401,'Token invalid'));
+        }else{
+          User.findById(decoded._id).then(resolve);
         }
       });
     });
@@ -101,7 +114,7 @@ userSchema.pre('save', function (next) {
   } else {
     next();
   }
-})
+});
 
 var User = mongoose.model('User', userSchema);
 

@@ -4,7 +4,8 @@
   "private": true,
   "scripts": {
     "start": "node ./bin/www",
-    "test": "mocha test/**/*.test.js"
+    "test": "mocha --exit test/**/*.test.js",
+    "debug": "node --nolazy --inspect-brk=3003 app.js"
   },
   "dependencies": {
     "bcrypt": "^1.0.3",

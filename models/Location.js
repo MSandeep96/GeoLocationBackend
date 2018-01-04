@@ -1,18 +1,40 @@
+var Schema = require('mongoose').Schema;
 var mongoose = require('../config/mongo');
 
+/**
+ * Location objects have a TTL of 3 hrs
+ */
 var locationSchema = new mongoose.Schema({
-  userId: String,
+  userId: Schema.Types.ObjectId,
   latitude: Number,
   longitude: Number,
-  time: Date
+  timestamp: Date
 });
 
-class LocationClass{
+class LocationClass {
 
+  static add(obj) {
+    obj.userId = obj.user._id;
+    delete obj.user;
+    return Location.update({ userId: obj.userId }, obj, { upsert: true })
+      .then((rawRes) => {
+        return Promise.resolve();
+      });
+  }
+
+  static fetch(afterTime) {
+    let queryObj = {};
+    if (afterTime) {
+      queryObj = {
+        timestamp: { $gt: afterTime }
+      }
+    }
+    return Location.find(queryObj);
+  }
 }
 
 locationSchema.loadClass(LocationClass);
 
-var Location = mongoose.model('Location',locationSchema);
+var Location = mongoose.model('Location', locationSchema);
 
 module.exports = Location;

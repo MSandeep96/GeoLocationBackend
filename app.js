@@ -4,7 +4,7 @@ var logger = require('morgan');
 var bodyParser = require('body-parser');
 var mongoose = require('./config/mongo');
 
-var index = require('./routes/index');
+var location = require('./routes/location');
 var user = require('./routes/user');
 
 var app = express();
@@ -12,7 +12,7 @@ app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 
-app.use('/', index);
+app.use('/location', location);
 app.use('/user', user);
 
 // catch 404 and forward to error handler
@@ -29,7 +29,9 @@ app.use(function(err, req, res, next) {
   res.locals.error = req.app.get('env') === 'development' ? err : {};
 
   // render the error page
-  res.sendStatus(err.status || 500);
+  res.status(err.status || 500).send({
+    error: err.message
+  });
 });
 
 module.exports = app;
