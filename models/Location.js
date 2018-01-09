@@ -1,6 +1,6 @@
 var Schema = require('mongoose').Schema;
 var mongoose = require('../config/mongo');
-
+var pick = require('lodash.pick');
 /**
  * Location objects have a TTL of 3 hrs
  */
@@ -31,6 +31,11 @@ class LocationClass {
     }
     return Location.find(queryObj);
   }
+}
+
+locationSchema.methods.toJSON = function () {
+  var location = this.toObject();
+  return pick(location, ['userId', 'longitude', 'latitude', 'timestamp']);
 }
 
 locationSchema.loadClass(LocationClass);

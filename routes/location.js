@@ -9,15 +9,15 @@ router.use(authenticate);
 //keep method quick
 router.post('/',function(req,res){
   res.sendStatus(200);
-  var obj = pick(req.body,['user','longitude','latitude','time']);
+  var obj = pick(req.body,['user','longitude','latitude','timestamp']);
   Location.add(obj);
 });
 
 router.get('/',function(req,res){
   var afterTime = req.query.time;
   Location.fetch(afterTime)
-  .then((res)=>{
-    console.log(res);
+  .then((data)=>{
+    res.send(data);
   });
 });
 
