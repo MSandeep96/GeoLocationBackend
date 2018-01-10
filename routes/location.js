@@ -7,18 +7,18 @@ var Location = require('../models/Location');
 router.use(authenticate);
 
 //keep method quick
-router.post('/',function(req,res){
+router.post('/', function (req, res) {
   res.sendStatus(200);
-  var obj = pick(req.body,['user','longitude','latitude','timestamp']);
+  var obj = pick(req.body, ['user', 'latitude', 'longitude', 'timestamp']);
   Location.add(obj);
 });
 
-router.get('/',function(req,res){
-  var afterTime = req.query.time;
-  Location.fetch(afterTime)
-  .then((data)=>{
-    res.send(data);
-  });
+router.get('/', function (req, res) {
+  var afterTime = req.query.after;
+  Location.fetch(req.body.user, afterTime)
+    .then((data) => {
+      res.send(data);
+    });
 });
 
 module.exports = router;

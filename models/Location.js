@@ -22,8 +22,10 @@ class LocationClass {
       });
   }
 
-  static fetch(afterTime) {
-    let queryObj = {};
+  static fetch(user, afterTime) {
+    let queryObj = {
+      userId: { $ne: user._id }
+    };
     if (afterTime) {
       queryObj = {
         timestamp: { $gt: afterTime }
