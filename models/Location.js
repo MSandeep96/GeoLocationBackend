@@ -27,9 +27,7 @@ class LocationClass {
       userId: { $ne: user._id }
     };
     if (afterTime) {
-      queryObj = {
-        timestamp: { $gt: afterTime }
-      }
+      queryObj.timestamp = { $gt: afterTime };
     }
     return Location.find(queryObj);
   }
